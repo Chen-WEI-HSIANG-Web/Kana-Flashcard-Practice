@@ -152,6 +152,7 @@
       box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.04);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
+      overflow: hidden;
     }
 
     .sidebar {
@@ -345,16 +346,32 @@
     }
 
     .flashcard {
+      position: relative;
       perspective: 1400px;
-      min-height: 460px;
+      height: 460px;
       cursor: pointer;
+      touch-action: pan-y;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .flashcard::after {
+      content: "Tap to flip";
+      position: absolute;
+      right: 18px;
+      bottom: 16px;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+      color: rgba(234, 244, 255, 0.4);
+      pointer-events: none;
+      z-index: 3;
     }
 
     .flashcard-inner {
       position: relative;
       width: 100%;
-      min-height: 460px;
-      transition: transform 0.65s ease;
+      height: 100%;
+      transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
       transform-style: preserve-3d;
     }
 
@@ -365,12 +382,14 @@
     .card-face {
       position: absolute;
       inset: 0;
+      width: 100%;
+      height: 100%;
       backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
       border-radius: 30px;
       padding: 30px;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
       border: 1px solid rgba(120, 193, 255, 0.18);
       box-shadow: var(--shadow);
       overflow: hidden;
@@ -403,6 +422,19 @@
       justify-content: space-between;
       align-items: center;
       gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .card-center {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 0;
+      text-align: center;
     }
 
     .badge {
@@ -421,29 +453,26 @@
     .card-index {
       color: var(--subtext);
       font-size: 14px;
+      flex-shrink: 0;
     }
 
     .kana {
-      position: relative;
-      z-index: 1;
       font-size: clamp(100px, 12vw, 190px);
       font-weight: 800;
-      text-align: center;
       line-height: 1;
-      margin: 16px 0 10px;
+      margin: 0 0 14px;
       color: #ffffff;
       text-shadow: 0 0 20px rgba(127, 220, 255, 0.12);
+      word-break: break-word;
     }
 
     .romaji {
-      position: relative;
-      z-index: 1;
       text-align: center;
       font-size: clamp(30px, 3vw, 54px);
       font-weight: 800;
       letter-spacing: 2px;
       color: var(--brand-deep);
-      margin-top: 4px;
+      margin-top: 0;
       word-break: break-word;
     }
 
@@ -454,6 +483,7 @@
       color: var(--subtext);
       line-height: 1.8;
       font-size: 15px;
+      flex-shrink: 0;
     }
 
     .example strong {
@@ -558,13 +588,15 @@
         padding: 0 12px;
       }
 
-      body {
-        overflow-x: hidden;
+      .hero {
+        padding: 22px;
+        border-radius: 24px;
       }
 
-      .hero {
-        padding: 18px;
-        border-radius: 18px;
+      .hero::after {
+        right: 16px;
+        bottom: 12px;
+        letter-spacing: 6px;
       }
 
       .layout {
@@ -578,28 +610,48 @@
         width: 100%;
       }
 
-      .content {
-        width: 100%;
+      .content,
+      .sidebar,
+      .quiz-box,
+      .card-face {
+        padding: 18px;
       }
 
       .stats {
         grid-template-columns: 1fr;
       }
 
-      .flashcard,
-      .flashcard-inner {
-        min-height: 320px;
+      .stat-card {
+        min-height: auto;
+      }
+
+      .stat-value {
+        font-size: 22px;
+      }
+
+      .flashcard {
+        height: 320px;
+      }
+
+      .flashcard::after {
+        right: 14px;
+        bottom: 12px;
+        font-size: 11px;
       }
 
       .kana {
-        font-size: clamp(72px, 22vw, 120px);
+        font-size: clamp(72px, 20vw, 120px);
       }
 
       .romaji {
-        font-size: clamp(22px, 6vw, 32px);
+        font-size: clamp(20px, 6vw, 28px);
       }
 
-      /* 👉 修正按鈕擠壓問題 */
+      .badge {
+        font-size: 12px;
+        padding: 6px 10px;
+      }
+
       .main-actions,
       .quiz-input-row,
       .row-wrap,
@@ -618,87 +670,13 @@
 
       input[type="text"] {
         width: 100%;
-      }
-
-      /* 👉 修正文字被壓縮 */
-      .stat-value {
-        font-size: 22px;
-      }
-
-      .badge {
-        font-size: 12px;
-        padding: 6px 10px;
-      }
-
-      /* 👉 防止整體溢出 */
-      .panel {
-        overflow: hidden;
-      }
-    }
-
-      .hero {
-        padding: 22px;
-        border-radius: 24px;
-      }
-
-      .hero::after {
-        right: 16px;
-        bottom: 12px;
-        letter-spacing: 6px;
-      }
-
-      .sidebar,
-      .content,
-      .quiz-box,
-      .card-face {
-        padding: 18px;
-      }
-
-      .stats {
-        grid-template-columns: 1fr;
-      }
-
-      .stat-card {
-        min-height: auto;
-      }
-
-      .flashcard,
-      .flashcard-inner {
-        min-height: 360px;
-      }
-
-      .kana {
-        font-size: clamp(84px, 24vw, 132px);
-      }
-
-      .romaji {
-        font-size: clamp(24px, 7vw, 36px);
-      }
-
-      .main-actions,
-      .quiz-input-row,
-      .row-wrap,
-      .segmented {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .main-actions > *,
-      .quiz-input-row > *,
-      .row-wrap > *,
-      .segmented > * {
-        width: 100%;
-      }
-
-      .quiz-input-row input[type="text"] {
-        grid-column: 1 / -1;
+        min-width: 0;
       }
     }
 
     @media (max-width: 540px) {
-      .flashcard,
-      .flashcard-inner {
-        min-height: 300px;
+      .flashcard {
+        height: 300px;
       }
 
       .kana {
@@ -718,28 +696,7 @@
         font-size: 12px;
       }
     }
-
-    .flashcard {
-      touch-action: pan-y;
-      user-select: none;
-      -webkit-user-select: none;
-    }
-
-      .flashcard,
-      .flashcard-inner {
-        min-height: 330px;
-      }
-
-      .badge,
-      .card-index,
-      .face-bottom,
-      .example,
-      .checkbox-item,
-      .footer-note {
-        font-size: 13px;
-      }
-    }
-  </style>
+</style>
 </head>
 <body>
   <div class="container">
@@ -748,7 +705,7 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.4 4.9L20 10l-4 3.9.9 5.6-4.9-2.6-4.9 2.6.9-5.6-4-3.9 5.6-2.1L12 3z"></path></svg>
         Japanese Kana Flashcard System
       </div>
-      <h1>日文五十音練習字卡</h1>
+      <h1>五十音練習字卡</h1>
       <p>
         純娛樂性質 平假名／片假名 字卡練習。
         可切換字體類型、篩選行別、翻卡、隨機抽題，並支援輸入羅馬拼音進行自我測驗。
@@ -828,7 +785,7 @@
                   <div class="card-index" id="frontIndex">1 / 46</div>
                 </div>
 
-                <div>
+                <div class="card-center">
                   <div class="kana" id="kanaDisplay">あ</div>
                   <div class="romaji" id="romajiDisplay" style="display:none;">a</div>
                 </div>
@@ -844,7 +801,7 @@
                   <div class="card-index">反面</div>
                 </div>
 
-                <div>
+                <div class="card-center">
                   <div class="kana" id="backKana">あ</div>
                   <div class="romaji" id="backRomaji">a</div>
                 </div>
