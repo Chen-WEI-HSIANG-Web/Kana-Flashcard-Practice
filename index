@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>日文五十音字卡練習</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --panel: #ffffff;
+      --panel-soft: #f8fbff;
+      --text: #1f2937;
+      --subtext: #6b7280;
+      --brand: #00558c;
+      --brand-dark: #003f6b;
+      --border: #d9e6f2;
+      --shadow: 0 10px 30px rgba(0, 63, 107, 0.08);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Microsoft JhengHei", "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #f7fbff 0%, #eef5fb 100%);
+      color: var(--text);
+    }
+
+    .container {
+      width: min(1200px, calc(100% - 32px));
+      margin: 32px auto 48px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #00558c 0%, #0d6ca8 100%);
+      color: #fff;
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: 0 18px 40px rgba(0, 85, 140, 0.18);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "あ ア か カ";
+      position: absolute;
+      right: 22px;
+      bottom: 10px;
+      font-size: 56px;
+      font-weight: 700;
+      letter-spacing: 8px;
+      opacity: 0.08;
+      pointer-events: none;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 4vw, 40px);
+    }
+
+    .hero p {
+      margin: 0;
+      line-height: 1.8;
+      max-width: 760px;
+      color: rgba(255,255,255,0.92);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 20px;
+      margin-top: 22px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar {
+      padding: 20px;
+      align-self: start;
+      position: sticky;
+      top: 18px;
+    }
+
+    .content {
+      padding: 20px;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--brand);
+      margin: 0 0 12px;
+    }
+
+    .control-group + .control-group {
+      margin-top: 20px;
+      padding-top: 18px;
+      border-top: 1px solid #ebf1f6;
+    }
+
+    .segmented,
+    .row-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .segmented button,
+    .chip,
+    .action-btn,
+    .ghost-btn {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: var(--text);
+      font-family: inherit;
+    }
+
+    .segmented button.active,
+    .chip.active,
+    .action-btn {
+      background: var(--brand);
+      border-color: var(--brand);
+      color: #fff;
+      box-shadow: 0 10px 20px rgba(0, 85, 140, 0.16);
+    }
+
+    .segmented button:hover,
+    .chip:hover,
+    .action-btn:hover,
+    .ghost-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .ghost-btn {
+      background: #f7fbff;
+      color: var(--brand);
+    }
+
+    .check-row {
+      display: grid;
+      gap: 10px;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--panel-soft);
+      border: 1px solid #e6eef7;
+      border-radius: 14px;
+      cursor: pointer;
+    }
+
+    .checkbox-item input {
+      accent-color: var(--brand);
+      width: 16px;
+      height: 16px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .stat-card {
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--subtext);
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--brand-dark);
+    }
+
+    .flashcard-wrap {
+      display: grid;
+      gap: 18px;
+    }
+
+    .flashcard {
+      perspective: 1200px;
+      min-height: 420px;
+    }
+
+    .flashcard-inner {
+      position: relative;
+      width: 100%;
+      min-height: 420px;
+      transition: transform 0.6s ease;
+      transform-style: preserve-3d;
+    }
+
+    .flashcard.flipped .flashcard-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      border-radius: 28px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-front {
+      background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+    }
+
+    .card-back {
+      background: linear-gradient(180deg, #f8fbff 0%, #eef6ff 100%);
+      transform: rotateY(180deg);
+    }
+
+    .face-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #edf6ff;
+      color: var(--brand);
+      border: 1px solid #d6e9f8;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .card-index {
+      color: var(--subtext);
+      font-size: 14px;
+    }
+
+    .kana {
+      font-size: clamp(100px, 18vw, 180px);
+      font-weight: 700;
+      text-align: center;
+      line-height: 1;
+      margin: 16px 0;
+      color: var(--brand-dark);
+    }
+
+    .romaji {
+      text-align: center;
+      font-size: clamp(34px, 5vw, 54px);
+      font-weight: 800;
+      letter-spacing: 2px;
+      color: var(--brand-dark);
+      margin-top: 8px;
+    }
+
+    .hint,
+    .example,
+    .face-bottom {
+      color: var(--subtext);
+      line-height: 1.8;
+      font-size: 15px;
+    }
+
+    .example strong {
+      color: var(--text);
+    }
+
+    .card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .main-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .quiz-box {
+      margin-top: 18px;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      padding: 22px;
+    }
+
+    .quiz-box h3 {
+      margin: 0 0 8px;
+      color: var(--brand-dark);
+    }
+
+    .quiz-box p {
+      margin: 0 0 16px;
+      color: var(--subtext);
+      line-height: 1.7;
+    }
+
+    .quiz-input-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      min-width: 220px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 16px;
+      outline: none;
+      font-family: inherit;
+    }
+
+    input[type="text"]:focus {
+      border-color: #8bb8dc;
+      box-shadow: 0 0 0 4px rgba(0, 85, 140, 0.08);
+    }
+
+    .quiz-result {
+      margin-top: 12px;
+      font-size: 15px;
+      min-height: 24px;
+      color: var(--brand-dark);
+      font-weight: 700;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      text-align: center;
+      color: var(--subtext);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .flashcard,
+      .flashcard-inner {
+        min-height: 380px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        width: min(100% - 20px, 1200px);
+        margin-top: 16px;
+      }
+
+      .hero,
+      .sidebar,
+      .content,
+      .card-face,
+      .quiz-box {
+        padding: 18px;
+      }
+
+      .kana {
+        font-size: 96px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <h1>日文五十音練習字卡</h1>
+      <p>
+        平假名／片假名字卡練習頁。
+        可切換字體類型、篩選行別、翻卡、隨機抽題，並支援輸入羅馬拼音進行自我測驗。
+      </p>
+    </section>
+
+    <div class="layout">
+      <aside class="panel sidebar">
+        <div class="control-group">
+          <h2 class="section-title">字卡模式</h2>
+          <div class="segmented" id="typeButtons">
+            <button class="active" data-type="hiragana">平假名</button>
+            <button data-type="katakana">片假名</button>
+            <button data-type="both">混合</button>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <h2 class="section-title">篩選行別</h2>
+          <div class="row-wrap" id="groupChips"></div>
+        </div>
+
+        <div class="control-group">
+          <h2 class="section-title">顯示設定</h2>
+          <div class="check-row">
+            <label class="checkbox-item">
+              <input type="checkbox" id="autoShowRomaji" />
+              <span>直接顯示羅馬拼音</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="shuffleOnChange" checked />
+              <span>切換條件時自動隨機排序</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <h2 class="section-title">快速操作</h2>
+          <div class="row-wrap">
+            <button class="action-btn" id="shuffleBtn">隨機抽卡</button>
+            <button class="ghost-btn" id="resetBtn">重設條件</button>
+          </div>
+        </div>
+      </aside>
+
+      <main class="panel content">
+        <section class="stats">
+          <div class="stat-card">
+            <div class="stat-label">目前字卡數</div>
+            <div class="stat-value" id="totalCount">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">目前第幾張</div>
+            <div class="stat-value" id="currentIndex">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">目前分類</div>
+            <div class="stat-value" id="currentMode" style="font-size:20px; line-height:1.4;">平假名</div>
+          </div>
+        </section>
+
+        <section class="flashcard-wrap">
+          <div class="flashcard" id="flashcard">
+            <div class="flashcard-inner">
+              <div class="card-face card-front">
+                <div class="face-top">
+                  <div class="badge" id="frontBadge">平假名・あ行</div>
+                  <div class="card-index" id="frontIndex">1 / 46</div>
+                </div>
+
+                <div>
+                  <div class="kana" id="kanaDisplay">あ</div>
+                  <div class="romaji" id="romajiDisplay" style="display:none;">a</div>
+                </div>
+
+                <div class="face-bottom">
+                  點擊「翻面看答案」可查看羅馬拼音與例字。
+                </div>
+              </div>
+
+              <div class="card-face card-back">
+                <div class="face-top">
+                  <div class="badge" id="backBadge">答案</div>
+                  <div class="card-index">反面</div>
+                </div>
+
+                <div>
+                  <div class="kana" id="backKana">あ</div>
+                  <div class="romaji" id="backRomaji">a</div>
+                </div>
+
+                <div class="example" id="exampleDisplay">
+                  <strong>例字：</strong> あさ（asa / 早晨）
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="main-actions">
+            <button class="ghost-btn" id="prevBtn">上一張</button>
+            <button class="action-btn" id="flipBtn">翻面看答案</button>
+            <button class="ghost-btn" id="nextBtn">下一張</button>
+          </div>
+        </section>
+
+        <section class="quiz-box">
+          <h3>自我測驗</h3>
+          <p>看到目前字卡後，先不要翻面，直接輸入你認為正確的羅馬拼音，例如：a、shi、tsu、kyo。</p>
+          <div class="quiz-input-row">
+            <input type="text" id="quizInput" placeholder="請輸入羅馬拼音" />
+            <button class="action-btn" id="checkBtn">確認答案</button>
+            <button class="ghost-btn" id="showAnswerBtn">顯示答案</button>
+          </div>
+          <div class="quiz-result" id="quizResult"></div>
+        </section>
+
+        <div class="footer-note">
+          建議練習方式：先以單一字體熟悉字形，再切換混合模式做辨識訓練，最後搭配自我測驗提升記憶穩定度。
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const kanaBase = [
+      { group: 'あ行', romaji: 'a', hira: 'あ', kata: 'ア', example: 'あさ（asa / 早晨）' },
+      { group: 'あ行', romaji: 'i', hira: 'い', kata: 'イ', example: 'いぬ（inu / 狗）' },
+      { group: 'あ行', romaji: 'u', hira: 'う', kata: 'ウ', example: 'うみ（umi / 海）' },
+      { group: 'あ行', romaji: 'e', hira: 'え', kata: 'エ', example: 'えき（eki / 車站）' },
+      { group: 'あ行', romaji: 'o', hira: 'お', kata: 'オ', example: 'おちゃ（ocha / 茶）' },
+
+      { group: 'か行', romaji: 'ka', hira: 'か', kata: 'カ', example: 'かさ（kasa / 傘）' },
+      { group: 'か行', romaji: 'ki', hira: 'き', kata: 'キ', example: 'き（ki / 樹）' },
+      { group: 'か行', romaji: 'ku', hira: 'く', kata: 'ク', example: 'くも（kumo / 雲）' },
+      { group: 'か行', romaji: 'ke', hira: 'け', kata: 'ケ', example: 'けむり（kemuri / 煙）' },
+      { group: 'か行', romaji: 'ko', hira: 'こ', kata: 'コ', example: 'こえ（koe / 聲音）' },
+
+      { group: 'さ行', romaji: 'sa', hira: 'さ', kata: 'サ', example: 'さかな（sakana / 魚）' },
+      { group: 'さ行', romaji: 'shi', hira: 'し', kata: 'シ', example: 'しお（shio / 鹽）' },
+      { group: 'さ行', romaji: 'su', hira: 'す', kata: 'ス', example: 'すし（sushi / 壽司）' },
+      { group: 'さ行', romaji: 'se', hira: 'せ', kata: 'セ', example: 'せかい（sekai / 世界）' },
+      { group: 'さ行', romaji: 'so', hira: 'そ', kata: 'ソ', example: 'そら（sora / 天空）' },
+
+      { group: 'た行', romaji: 'ta', hira: 'た', kata: 'タ', example: 'たまご（tamago / 蛋）' },
+      { group: 'た行', romaji: 'chi', hira: 'ち', kata: 'チ', example: 'ちず（chizu / 地圖）' },
+      { group: 'た行', romaji: 'tsu', hira: 'つ', kata: 'ツ', example: 'つき（tsuki / 月亮）' },
+      { group: 'た行', romaji: 'te', hira: 'て', kata: 'テ', example: 'て（te / 手）' },
+      { group: 'た行', romaji: 'to', hira: 'と', kata: 'ト', example: 'とけい（tokei / 時鐘）' },
+
+      { group: 'な行', romaji: 'na', hira: 'な', kata: 'ナ', example: 'なつ（natsu / 夏天）' },
+      { group: 'な行', romaji: 'ni', hira: 'に', kata: 'ニ', example: 'にく（niku / 肉）' },
+      { group: 'な行', romaji: 'nu', hira: 'ぬ', kata: 'ヌ', example: 'いぬ（inu / 狗，含ぬ的變化字可另延伸）' },
+      { group: 'な行', romaji: 'ne', hira: 'ね', kata: 'ネ', example: 'ねこ（neko / 貓）' },
+      { group: 'な行', romaji: 'no', hira: 'の', kata: 'ノ', example: 'のり（nori / 海苔）' },
+
+      { group: 'は行', romaji: 'ha', hira: 'は', kata: 'ハ', example: 'はな（hana / 花）' },
+      { group: 'は行', romaji: 'hi', hira: 'ひ', kata: 'ヒ', example: 'ひと（hito / 人）' },
+      { group: 'は行', romaji: 'fu', hira: 'ふ', kata: 'フ', example: 'ふね（fune / 船）' },
+      { group: 'は行', romaji: 'he', hira: 'へ', kata: 'ヘ', example: 'へや（heya / 房間）' },
+      { group: 'は行', romaji: 'ho', hira: 'ほ', kata: 'ホ', example: 'ほし（hoshi / 星星）' },
+
+      { group: 'ま行', romaji: 'ma', hira: 'ま', kata: 'マ', example: 'まど（mado / 窗戶）' },
+      { group: 'ま行', romaji: 'mi', hira: 'み', kata: 'ミ', example: 'みず（mizu / 水）' },
+      { group: 'ま行', romaji: 'mu', hira: 'む', kata: 'ム', example: 'むし（mushi / 蟲）' },
+      { group: 'ま行', romaji: 'me', hira: 'め', kata: 'メ', example: 'め（me / 眼睛）' },
+      { group: 'ま行', romaji: 'mo', hira: 'も', kata: 'モ', example: 'もり（mori / 森林）' },
+
+      { group: 'や行', romaji: 'ya', hira: 'や', kata: 'ヤ', example: 'やま（yama / 山）' },
+      { group: 'や行', romaji: 'yu', hira: 'ゆ', kata: 'ユ', example: 'ゆき（yuki / 雪）' },
+      { group: 'や行', romaji: 'yo', hira: 'よ', kata: 'ヨ', example: 'よる（yoru / 夜晚）' },
+
+      { group: 'ら行', romaji: 'ra', hira: 'ら', kata: 'ラ', example: 'らいおん（raion / 獅子）' },
+      { group: 'ら行', romaji: 'ri', hira: 'り', kata: 'リ', example: 'りんご（ringo / 蘋果）' },
+      { group: 'ら行', romaji: 'ru', hira: 'る', kata: 'ル', example: 'るす（rusu / 不在）' },
+      { group: 'ら行', romaji: 're', hira: 'れ', kata: 'レ', example: 'れいぞうこ（reizouko / 冰箱）' },
+      { group: 'ら行', romaji: 'ro', hira: 'ろ', kata: 'ロ', example: 'ろうそく（rousoku / 蠟燭）' },
+
+      { group: 'わ行', romaji: 'wa', hira: 'わ', kata: 'ワ', example: 'わに（wani / 鱷魚）' },
+      { group: 'わ行', romaji: 'wo', hira: 'を', kata: 'ヲ', example: 'を（助詞，現代日文多作助詞使用）' },
+      { group: 'わ行', romaji: 'n', hira: 'ん', kata: 'ン', example: 'ほん（hon / 書）' }
+    ];
+
+    const state = {
+      type: 'hiragana',
+      selectedGroups: new Set([...new Set(kanaBase.map(item => item.group))]),
+      deck: [],
+      current: 0,
+      flipped: false
+    };
+
+    const groupOrder = [...new Set(kanaBase.map(item => item.group))];
+
+    const els = {
+      typeButtons: document.getElementById('typeButtons'),
+      groupChips: document.getElementById('groupChips'),
+      autoShowRomaji: document.getElementById('autoShowRomaji'),
+      shuffleOnChange: document.getElementById('shuffleOnChange'),
+      shuffleBtn: document.getElementById('shuffleBtn'),
+      resetBtn: document.getElementById('resetBtn'),
+      totalCount: document.getElementById('totalCount'),
+      currentIndex: document.getElementById('currentIndex'),
+      currentMode: document.getElementById('currentMode'),
+      flashcard: document.getElementById('flashcard'),
+      frontBadge: document.getElementById('frontBadge'),
+      frontIndex: document.getElementById('frontIndex'),
+      kanaDisplay: document.getElementById('kanaDisplay'),
+      romajiDisplay: document.getElementById('romajiDisplay'),
+      backKana: document.getElementById('backKana'),
+      backRomaji: document.getElementById('backRomaji'),
+      exampleDisplay: document.getElementById('exampleDisplay'),
+      prevBtn: document.getElementById('prevBtn'),
+      nextBtn: document.getElementById('nextBtn'),
+      flipBtn: document.getElementById('flipBtn'),
+      quizInput: document.getElementById('quizInput'),
+      checkBtn: document.getElementById('checkBtn'),
+      showAnswerBtn: document.getElementById('showAnswerBtn'),
+      quizResult: document.getElementById('quizResult')
+    };
+
+    function getModeLabel(type) {
+      if (type === 'hiragana') return '平假名';
+      if (type === 'katakana') return '片假名';
+      return '混合模式';
+    }
+
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function buildDeck() {
+      const filtered = kanaBase.filter(item => state.selectedGroups.has(item.group));
+
+      let deck = filtered.map(item => {
+        let symbol = item.hira;
+        let label = '平假名';
+
+        if (state.type === 'katakana') {
+          symbol = item.kata;
+          label = '片假名';
+        } else if (state.type === 'both') {
+          const useHira = Math.random() > 0.5;
+          symbol = useHira ? item.hira : item.kata;
+          label = useHira ? '平假名' : '片假名';
+        }
+
+        return { ...item, symbol, label };
+      });
+
+      if (els.shuffleOnChange.checked) {
+        deck = shuffle(deck);
+      }
+
+      state.deck = deck;
+      state.current = 0;
+      state.flipped = false;
+      render();
+    }
+
+    function renderGroupChips() {
+      els.groupChips.innerHTML = '';
+
+      const allChip = document.createElement('button');
+      allChip.className = 'chip active';
+      allChip.textContent = '全部';
+      allChip.addEventListener('click', () => {
+        state.selectedGroups = new Set(groupOrder);
+        renderGroupChips();
+        buildDeck();
+      });
+      els.groupChips.appendChild(allChip);
+
+      groupOrder.forEach(group => {
+        const chip = document.createElement('button');
+        chip.className = 'chip';
+        chip.textContent = group;
+        chip.dataset.group = group;
+
+        if (state.selectedGroups.has(group)) {
+          chip.classList.add('active');
+        }
+
+        chip.addEventListener('click', () => {
+          if (state.selectedGroups.has(group)) {
+            if (state.selectedGroups.size === 1) return;
+            state.selectedGroups.delete(group);
+          } else {
+            state.selectedGroups.add(group);
+          }
+          renderGroupChips();
+          buildDeck();
+        });
+
+        els.groupChips.appendChild(chip);
+      });
+
+      const chips = els.groupChips.querySelectorAll('.chip');
+      const allSelected = state.selectedGroups.size === groupOrder.length;
+      if (!allSelected) chips[0].classList.remove('active');
+    }
+
+    function render() {
+      const deck = state.deck;
+      const card = deck[state.current];
+
+      els.totalCount.textContent = deck.length;
+      els.currentIndex.textContent = deck.length ? state.current + 1 : 0;
+      els.currentMode.textContent = getModeLabel(state.type);
+      els.flashcard.classList.toggle('flipped', state.flipped);
+      els.flipBtn.textContent = state.flipped ? '翻回題目' : '翻面看答案';
+      els.quizResult.textContent = '';
+      els.quizInput.value = '';
+
+      const typeButtons = els.typeButtons.querySelectorAll('button');
+      typeButtons.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.type === state.type);
+      });
+
+      if (!card) {
+        els.frontBadge.textContent = '沒有符合條件的字卡';
+        els.frontIndex.textContent = '0 / 0';
+        els.kanaDisplay.textContent = '—';
+        els.romajiDisplay.style.display = 'none';
+        els.backKana.textContent = '—';
+        els.backRomaji.textContent = '—';
+        els.exampleDisplay.innerHTML = '<strong>例字：</strong> 請重新選擇行別';
+        return;
+      }
+
+      els.frontBadge.textContent = `${card.label}・${card.group}`;
+      els.frontIndex.textContent = `${state.current + 1} / ${deck.length}`;
+      els.kanaDisplay.textContent = card.symbol;
+      els.romajiDisplay.textContent = card.romaji;
+      els.romajiDisplay.style.display = els.autoShowRomaji.checked ? 'block' : 'none';
+      els.backKana.textContent = card.symbol;
+      els.backRomaji.textContent = card.romaji;
+      els.exampleDisplay.innerHTML = `<strong>例字：</strong> ${card.example}`;
+    }
+
+    function nextCard() {
+      if (!state.deck.length) return;
+      state.current = (state.current + 1) % state.deck.length;
+      state.flipped = false;
+      render();
+    }
+
+    function prevCard() {
+      if (!state.deck.length) return;
+      state.current = (state.current - 1 + state.deck.length) % state.deck.length;
+      state.flipped = false;
+      render();
+    }
+
+    function flipCard() {
+      if (!state.deck.length) return;
+      state.flipped = !state.flipped;
+      render();
+    }
+
+    function checkAnswer() {
+      const card = state.deck[state.current];
+      if (!card) return;
+      const input = els.quizInput.value.trim().toLowerCase();
+      if (!input) {
+        els.quizResult.textContent = '請先輸入答案。';
+        return;
+      }
+
+      if (input === card.romaji.toLowerCase()) {
+        els.quizResult.textContent = `答對了：${card.symbol} = ${card.romaji}`;
+      } else {
+        els.quizResult.textContent = `再試一次，目前答案不是 ${input}。`;
+      }
+    }
+
+    function showAnswer() {
+      const card = state.deck[state.current];
+      if (!card) return;
+      state.flipped = true;
+      render();
+      els.quizResult.textContent = `正確答案：${card.romaji}`;
+    }
+
+    els.typeButtons.addEventListener('click', e => {
+      const btn = e.target.closest('button[data-type]');
+      if (!btn) return;
+      state.type = btn.dataset.type;
+      buildDeck();
+    });
+
+    els.autoShowRomaji.addEventListener('change', render);
+    els.shuffleBtn.addEventListener('click', () => {
+      state.deck = shuffle(state.deck);
+      state.current = 0;
+      state.flipped = false;
+      render();
+    });
+
+    els.resetBtn.addEventListener('click', () => {
+      state.type = 'hiragana';
+      state.selectedGroups = new Set(groupOrder);
+      els.autoShowRomaji.checked = false;
+      els.shuffleOnChange.checked = true;
+      renderGroupChips();
+      buildDeck();
+    });
+
+    els.prevBtn.addEventListener('click', prevCard);
+    els.nextBtn.addEventListener('click', nextCard);
+    els.flipBtn.addEventListener('click', flipCard);
+    els.flashcard.addEventListener('click', flipCard);
+    els.checkBtn.addEventListener('click', checkAnswer);
+    els.showAnswerBtn.addEventListener('click', showAnswer);
+    els.quizInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') checkAnswer();
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.target.tagName === 'INPUT') return;
+      if (e.key === 'ArrowRight') nextCard();
+      if (e.key === 'ArrowLeft') prevCard();
+      if (e.key === ' ') {
+        e.preventDefault();
+        flipCard();
+      }
+    });
+
+    renderGroupChips();
+    buildDeck();
+  </script>
+</body>
+</html>
