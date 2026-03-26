@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>日文五十音字卡練習</title>
+  <title>五十音字卡練習</title>
   <style>
     :root {
       --bg-1: #06111f;
@@ -553,9 +553,88 @@
 
     @media (max-width: 768px) {
       .container {
-        width: min(100% - 20px, 1980px);
-        margin: 12px auto 32px;
+        width: 100%;
+        margin: 0 auto 24px;
+        padding: 0 12px;
       }
+
+      body {
+        overflow-x: hidden;
+      }
+
+      .hero {
+        padding: 18px;
+        border-radius: 18px;
+      }
+
+      .layout {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .sidebar {
+        position: static;
+        width: 100%;
+      }
+
+      .content {
+        width: 100%;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .flashcard,
+      .flashcard-inner {
+        min-height: 320px;
+      }
+
+      .kana {
+        font-size: clamp(72px, 22vw, 120px);
+      }
+
+      .romaji {
+        font-size: clamp(22px, 6vw, 32px);
+      }
+
+      /* 👉 修正按鈕擠壓問題 */
+      .main-actions,
+      .quiz-input-row,
+      .row-wrap,
+      .segmented {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .main-actions > *,
+      .quiz-input-row > *,
+      .row-wrap > *,
+      .segmented > * {
+        width: 100%;
+      }
+
+      input[type="text"] {
+        width: 100%;
+      }
+
+      /* 👉 修正文字被壓縮 */
+      .stat-value {
+        font-size: 22px;
+      }
+
+      .badge {
+        font-size: 12px;
+        padding: 6px 10px;
+      }
+
+      /* 👉 防止整體溢出 */
+      .panel {
+        overflow: hidden;
+      }
+    }
 
       .hero {
         padding: 22px;
@@ -617,12 +696,34 @@
     }
 
     @media (max-width: 540px) {
-      .main-actions,
-      .quiz-input-row,
-      .row-wrap,
-      .segmented {
-        grid-template-columns: 1fr;
+      .flashcard,
+      .flashcard-inner {
+        min-height: 300px;
       }
+
+      .kana {
+        font-size: 64px;
+      }
+
+      .romaji {
+        font-size: 20px;
+      }
+
+      .badge,
+      .card-index,
+      .face-bottom,
+      .example,
+      .checkbox-item,
+      .footer-note {
+        font-size: 12px;
+      }
+    }
+
+    .flashcard {
+      touch-action: pan-y;
+      user-select: none;
+      -webkit-user-select: none;
+    }
 
       .flashcard,
       .flashcard-inner {
@@ -649,7 +750,7 @@
       </div>
       <h1>日文五十音練習字卡</h1>
       <p>
-        平假名／片假名字卡練習頁。
+        純娛樂性質之平假名／片假名字卡。
         可切換字體類型、篩選行別、翻卡、隨機抽題，並支援輸入羅馬拼音進行自我測驗。
       </p>
     </section>
@@ -808,7 +909,7 @@
 
       { group: 'な行', romaji: 'na', hira: 'な', kata: 'ナ', example: 'なつ（natsu / 夏天）' },
       { group: 'な行', romaji: 'ni', hira: 'に', kata: 'ニ', example: 'にく（niku / 肉）' },
-      { group: 'な行', romaji: 'nu', hira: 'ぬ', kata: 'ヌ', example: 'いぬ（inu / 狗，含ぬ的變化字可另延伸）' },
+      { group: 'な行', romaji: 'nu', hira: 'ぬ', kata: 'ヌ', example: 'ぬの（nuno / 布）' },
       { group: 'な行', romaji: 'ne', hira: 'ね', kata: 'ネ', example: 'ねこ（neko / 貓）' },
       { group: 'な行', romaji: 'no', hira: 'の', kata: 'ノ', example: 'のり（nori / 海苔）' },
 
@@ -844,7 +945,10 @@
       selectedGroups: new Set([...new Set(kanaBase.map(item => item.group))]),
       deck: [],
       current: 0,
-      flipped: false
+      flipped: false,
+      swipeStartX: 0,
+      swipeStartY: 0,
+      swipeActive: false
     };
 
     const groupOrder = [...new Set(kanaBase.map(item => item.group))];
@@ -959,7 +1063,7 @@
 
       const chips = els.groupChips.querySelectorAll('.chip');
       const allSelected = state.selectedGroups.size === groupOrder.length;
-      if (!allSelected) chips[0].classList.remove('active');
+      if (!allSelected && chips[0]) chips[0].classList.remove('active');
     }
 
     function render() {
@@ -970,7 +1074,9 @@
       els.currentIndex.textContent = deck.length ? state.current + 1 : 0;
       els.currentMode.textContent = getModeLabel(state.type);
       els.flashcard.classList.toggle('flipped', state.flipped);
-      els.flipBtn.textContent = state.flipped ? '翻回題目' : '翻面看答案';
+      els.flipBtn.innerHTML = state.flipped
+        ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3"></path><path d="M16 21h3a2 2 0 0 0 2-2v-3"></path><path d="M21 8V5a2 2 0 0 0-2-2h-3"></path><path d="M3 16v3a2 2 0 0 0 2 2h3"></path><path d="M16 12H8"></path><path d="M12 16l-4-4 4-4"></path></svg>翻回題目'
+        : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3"></path><path d="M16 21h3a2 2 0 0 0 2-2v-3"></path><path d="M21 8V5a2 2 0 0 0-2-2h-3"></path><path d="M3 16v3a2 2 0 0 0 2 2h3"></path><path d="M8 12h8"></path><path d="M12 8l4 4-4 4"></path></svg>翻面看答案';
       els.quizResult.textContent = '';
       els.quizInput.value = '';
 
@@ -1044,6 +1150,53 @@
       els.quizResult.textContent = `正確答案：${card.romaji}`;
     }
 
+    function speakCurrent() {
+      const card = state.deck[state.current];
+      if (!card || !('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(card.symbol);
+      utterance.lang = 'ja-JP';
+      utterance.rate = 0.9;
+      utterance.pitch = 1;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function addSpeakButton() {
+      const mainActions = document.querySelector('.main-actions');
+      if (!mainActions || document.getElementById('speakBtn')) return;
+      const btn = document.createElement('button');
+      btn.className = 'ghost-btn';
+      btn.id = 'speakBtn';
+      btn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7"></path><path d="M18 6a8.5 8.5 0 0 1 0 12"></path></svg>發音';
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        speakCurrent();
+      });
+      mainActions.insertBefore(btn, document.getElementById('nextBtn'));
+    }
+
+    function handleTouchStart(e) {
+      const touch = e.changedTouches[0];
+      state.swipeStartX = touch.clientX;
+      state.swipeStartY = touch.clientY;
+      state.swipeActive = true;
+    }
+
+    function handleTouchEnd(e) {
+      if (!state.swipeActive) return;
+      const touch = e.changedTouches[0];
+      const dx = touch.clientX - state.swipeStartX;
+      const dy = touch.clientY - state.swipeStartY;
+      state.swipeActive = false;
+
+      if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+      if (dx < 0) {
+        nextCard();
+      } else {
+        prevCard();
+      }
+    }
+
     els.typeButtons.addEventListener('click', e => {
       const btn = e.target.closest('button[data-type]');
       if (!btn) return;
@@ -1068,10 +1221,12 @@
       buildDeck();
     });
 
-    els.prevBtn.addEventListener('click', prevCard);
-    els.nextBtn.addEventListener('click', nextCard);
-    els.flipBtn.addEventListener('click', flipCard);
+    els.prevBtn.addEventListener('click', (e) => { e.stopPropagation(); prevCard(); });
+    els.nextBtn.addEventListener('click', (e) => { e.stopPropagation(); nextCard(); });
+    els.flipBtn.addEventListener('click', (e) => { e.stopPropagation(); flipCard(); });
     els.flashcard.addEventListener('click', flipCard);
+    els.flashcard.addEventListener('touchstart', handleTouchStart, { passive: true });
+    els.flashcard.addEventListener('touchend', handleTouchEnd, { passive: true });
     els.checkBtn.addEventListener('click', checkAnswer);
     els.showAnswerBtn.addEventListener('click', showAnswer);
     els.quizInput.addEventListener('keydown', e => {
@@ -1088,6 +1243,7 @@
       }
     });
 
+    addSpeakButton();
     renderGroupChips();
     buildDeck();
   </script>
