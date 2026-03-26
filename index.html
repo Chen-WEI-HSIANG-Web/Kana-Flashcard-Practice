@@ -373,10 +373,13 @@
       height: 100%;
       transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
       transform-style: preserve-3d;
+      -webkit-transform-style: preserve-3d;
+      will-change: transform;
     }
 
     .flashcard.flipped .flashcard-inner {
-      transform: rotateY(180deg);
+      transform: rotateY(180deg) translateZ(0);
+      -webkit-transform: rotateY(180deg) translateZ(0);
     }
 
     .card-face {
@@ -393,6 +396,12 @@
       border: 1px solid rgba(120, 193, 255, 0.18);
       box-shadow: var(--shadow);
       overflow: hidden;
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
+      transform-style: preserve-3d;
+      -webkit-transform-style: preserve-3d;
+      will-change: transform;
+      isolation: isolate;
       background:
         linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%),
         linear-gradient(135deg, rgba(9, 30, 52, 0.88) 0%, rgba(8, 24, 42, 0.92) 100%);
@@ -408,8 +417,14 @@
       pointer-events: none;
     }
 
+    .card-front {
+      transform: rotateY(0deg) translateZ(1px);
+      -webkit-transform: rotateY(0deg) translateZ(1px);
+    }
+
     .card-back {
-      transform: rotateY(180deg);
+      transform: rotateY(180deg) translateZ(1px);
+      -webkit-transform: rotateY(180deg) translateZ(1px);
       background:
         linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.03) 100%),
         linear-gradient(135deg, rgba(10, 34, 59, 0.9) 0%, rgba(8, 46, 63, 0.9) 100%);
@@ -417,7 +432,7 @@
 
     .face-top {
       position: relative;
-      z-index: 1;
+      z-index: 2;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -427,7 +442,7 @@
 
     .card-center {
       position: relative;
-      z-index: 1;
+      z-index: 2;
       flex: 1;
       display: flex;
       flex-direction: column;
@@ -479,7 +494,7 @@
     .face-bottom,
     .example {
       position: relative;
-      z-index: 1;
+      z-index: 2;
       color: var(--subtext);
       line-height: 1.8;
       font-size: 15px;
@@ -559,6 +574,34 @@
       color: var(--subtext);
       font-size: 14px;
       line-height: 1.8;
+    }
+
+    
+    @supports (-webkit-touch-callout: none) {
+      .flashcard {
+        isolation: isolate;
+      }
+
+      .flashcard-inner,
+      .card-face,
+      .card-front,
+      .card-back,
+      .badge,
+      .card-index,
+      .kana,
+      .romaji,
+      .face-bottom,
+      .example {
+        -webkit-transform: translateZ(0);
+      }
+
+      .card-front {
+        -webkit-transform: rotateY(0deg) translateZ(1px);
+      }
+
+      .card-back {
+        -webkit-transform: rotateY(180deg) translateZ(1px);
+      }
     }
 
     @media (max-width: 1360px) {
